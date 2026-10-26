@@ -1,69 +1,166 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>License admin</title>
+<title>License Panel</title>
 <style>
-:root{--bg:#0e1218;--card:#1a212b;--b:#2a3441;--t:#e6edf3;--m:#8b98a8;--a:#3b82f6;--bad:#da3633;--good:#2ea043}
-*{box-sizing:border-box}body{margin:0 auto;background:var(--bg);color:var(--t);font:14px system-ui,sans-serif;padding:20px;max-width:1100px}
-.card{background:var(--card);border:1px solid var(--b);border-radius:10px;padding:16px;margin-bottom:16px}
-h1{font-size:20px}h2{font-size:15px;margin:0 0 10px}
-input{background:#0f141b;border:1px solid var(--b);color:var(--t);padding:8px;border-radius:6px}
-button{background:var(--a);color:#fff;border:0;padding:8px 12px;border-radius:6px;cursor:pointer}
-button.s{background:#252e3b;padding:4px 8px;font-size:12px}button.d{background:var(--bad)}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end}label{display:flex;flex-direction:column;gap:4px;color:var(--m);font-size:12px}
-table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--b);font-size:13px}
-code{font-family:Consolas,monospace}.ok{color:var(--good)}.bad{color:var(--bad)}.wrap{overflow-x:auto}
-pre{background:#0f141b;padding:10px;border-radius:6px;user-select:all}
+:root{--bg:#0b0f15;--panel:#121820;--card:#171e28;--b:#263040;--t:#e6edf3;--m:#8b98a8;--a:#3b82f6;--ah:#5a9bff;
+--good:#2ea043;--bad:#da3633;--warn:#d29922;--night:#9b8cff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:14px/1.4 system-ui,Segoe UI,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 22px;background:var(--panel);border-bottom:1px solid var(--b);position:sticky;top:0;z-index:5}
+header h1{font-size:17px;margin:0}header small{color:var(--m)}
+main{max-width:1280px;margin:auto;padding:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--card);border:1px solid var(--b);border-radius:12px;padding:14px}
+.stat b{display:block;font-size:26px;margin-top:2px}.stat span{color:var(--m);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.stat.live b{color:var(--good)}.stat.live span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--good);margin-right:6px;animation:p 1.6s infinite}
+@keyframes p{50%{opacity:.25}}
+.card{background:var(--card);border:1px solid var(--b);border-radius:12px;padding:16px;margin-bottom:18px}
+.card h2{font-size:14px;margin:0 0 12px;display:flex;justify-content:space-between;align-items:center}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:900px){.two{grid-template-columns:1fr}}
+label{display:flex;flex-direction:column;gap:4px;color:var(--m);font-size:12px}
+input,select{background:#0d121a;border:1px solid var(--b);color:var(--t);padding:8px 10px;border-radius:8px;font:inherit;min-width:0}
+input:focus,select:focus{outline:2px solid var(--a);border-color:transparent}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+button{background:var(--a);color:#fff;border:0;padding:8px 14px;border-radius:8px;cursor:pointer;font:inherit;font-weight:600}
+button:hover{background:var(--ah)}button.s{background:#222c3a;padding:4px 9px;font-size:12px;font-weight:500}button.s:hover{background:#2c394b}
+button.d{background:#5b1c1b}button.d:hover{background:var(--bad)}
+.chk{flex-direction:row;align-items:center;gap:8px;color:var(--t);padding-bottom:8px}.chk input{width:16px;height:16px}
+table{width:100%;border-collapse:collapse}th{color:var(--m);font-weight:600;font-size:11px;text-transform:uppercase;text-align:left;padding:8px;border-bottom:1px solid var(--b)}
+td{padding:8px;border-bottom:1px solid #1d2632;vertical-align:top;font-size:13px}tr:hover td{background:#1a222d}
+.wrap{overflow-x:auto}code{font-family:Consolas,monospace;font-size:13px}
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700}
+.b-active{background:#12361c;color:#3fb950}.b-unused{background:#1f2a44;color:#7aa7ff}.b-expired{background:#3a2a0d;color:#e3b341}.b-revoked{background:#3d1514;color:#f85149}
+.lock{background:#2b2650;color:var(--night)}.nolock{background:#2a2f38;color:var(--m)}
+.chip{display:inline-flex;align-items:center;gap:5px;background:#0d121a;border:1px solid var(--b);border-radius:6px;padding:1px 6px;margin:2px 4px 2px 0;font:12px Consolas,monospace}
+.chip i{width:7px;height:7px;border-radius:50%;background:#46505e;display:inline-block}.chip i.on{background:var(--good)}
+.chip a{color:var(--m);cursor:pointer;text-decoration:none}.chip a:hover{color:var(--bad)}
+.m{color:var(--m)}.empty{color:var(--m);padding:14px;text-align:center}
+#login{max-width:420px;margin:12vh auto}
+pre{background:#0d121a;border:1px solid var(--b);padding:10px;border-radius:8px;margin:12px 0 0;white-space:pre-wrap;user-select:all}
+.toast{position:fixed;bottom:20px;right:20px;background:#222c3a;border:1px solid var(--b);padding:10px 16px;border-radius:8px;opacity:0;transition:.2s;pointer-events:none}.toast.show{opacity:1}.toast.err{border-color:var(--bad)}
 </style></head><body>
-<h1>License admin</h1>
-<div class="card"><div class="row">
- <label>Admin token<input id="tok" type="password" size="36"></label>
- <button id="login">Load</button></div></div>
+<div id="login" class="card"><h2>License Panel</h2>
+ <label>Admin token<input id="tok" type="password" autocomplete="current-password"></label>
+ <div style="margin-top:12px"><button id="go">Sign in</button></div></div>
 
-<div class="card"><h2>Create keys</h2><div class="row">
- <label>Count<input id="count" type="number" value="1" min="1" max="100" style="width:70px"></label>
- <label>Days (0 = lifetime)<input id="days" type="number" value="30" min="0" style="width:120px"></label>
- <label>Max devices<input id="dev" type="number" value="1" min="1" style="width:90px"></label>
- <label>Note / customer<input id="note" size="26"></label>
- <button id="create">Generate</button></div>
- <pre id="out" hidden></pre></div>
+<div id="app" hidden>
+<header><div><h1>License Panel</h1><small id="upd">loading…</small></div>
+ <div class="row"><button class="s" id="refresh">Refresh</button><button class="s" id="logout">Sign out</button></div></header>
+<main>
+ <div class="grid" id="stats"></div>
 
-<div class="card"><h2>Licenses</h2><div class="wrap"><table id="tbl"></table></div></div>
+ <div class="two">
+  <div class="card"><h2>Create key</h2>
+   <div class="row">
+    <label style="flex:1;min-width:220px">Custom key (optional — blank = random)<input id="custom" placeholder="e.g. VIP-JOHN-2026" autocomplete="off"></label>
+    <label>Count<input id="count" type="number" min="1" max="100" value="1" style="width:76px"></label>
+   </div>
+   <div class="row" style="margin-top:10px">
+    <label>Duration<input id="amount" type="number" min="1" value="30" style="width:90px"></label>
+    <label>Unit<select id="unit"><option value="minutes">minutes</option><option value="hours">hours</option><option value="days" selected>days</option><option value="lifetime">lifetime</option></select></label>
+    <label>Max PCs<input id="maxdev" type="number" min="1" max="50" value="1" style="width:80px"></label>
+    <label class="chk"><input id="hwlock" type="checkbox" checked> HWID lock</label>
+   </div>
+   <div class="row" style="margin-top:10px">
+    <label style="flex:1;min-width:200px">Pre-lock to HWID (optional)<input id="hwid" placeholder="32-char HWID from the customer" autocomplete="off"></label>
+    <label style="flex:1;min-width:160px">Note / customer<input id="note" autocomplete="off"></label>
+   </div>
+   <div style="margin-top:12px"><button id="create">Generate</button></div>
+   <pre id="out" hidden></pre>
+  </div>
+
+  <div class="card"><h2>Online now <span class="m" id="onl-sub"></span></h2>
+   <div class="wrap"><table id="online"></table></div></div>
+ </div>
+
+ <div class="card"><h2>Licenses
+  <span class="row"><input id="q" placeholder="Search key / note / HWID" style="width:230px">
+   <select id="flt"><option value="">All</option><option>active</option><option>unused</option><option>expired</option><option>revoked</option><option value="online">online</option></select></span></h2>
+  <div class="wrap"><table id="tbl"></table></div></div>
+</main></div>
+<div class="toast" id="toast"></div>
 
 <script>
 const $=id=>document.getElementById(id);
-$('tok').value=sessionStorage.getItem('tok')||'';
+let DATA=null, timer=null;
+const MIN=60000,HR=3600000,DAY=86400000;
+
+function h(tag,props,...kids){const e=document.createElement(tag);
+  for(const[k,v]of Object.entries(props||{})){ if(k==='class')e.className=v; else if(k.startsWith('on'))e[k]=v; else if(k==='title')e.title=v; else e.setAttribute(k,v);}
+  for(const c of kids.flat())if(c!=null)e.append(c.nodeType?c:document.createTextNode(c));return e;}
+function toast(m,err){const t=$('toast');t.textContent=m;t.className='toast show'+(err?' err':'');clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',2800)}
 async function api(body){
   const r=await fetch('/api/admin',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+$('tok').value},body:JSON.stringify(body)});
-  const j=await r.json(); if(!r.ok) throw new Error(j.error||r.status); return j;
-}
-const fmt=ms=>ms?new Date(ms).toLocaleString():'—';
+  const t=await r.text();let j;try{j=JSON.parse(t)}catch{throw new Error('HTTP '+r.status+' '+t.slice(0,60))}
+  if(!r.ok)throw new Error(j.error||r.status);return j;}
+function dur(ms){if(!ms)return'lifetime';if(ms%DAY===0)return ms/DAY+' d';if(ms%HR===0)return ms/HR+' h';return Math.round(ms/MIN)+' min'}
+function left(ms){if(ms<=0)return'expired';const d=Math.floor(ms/DAY),hh=Math.floor(ms%DAY/HR),m=Math.floor(ms%HR/MIN);
+  return d?`${d}d ${hh}h`:hh?`${hh}h ${m}m`:`${m}m ${Math.floor(ms%MIN/1000)}s`}
+function ago(ms){const s=Math.max(0,Math.floor(ms/1000));return s<60?s+'s ago':s<3600?Math.floor(s/60)+'m ago':s<86400?Math.floor(s/3600)+'h ago':Math.floor(s/86400)+'d ago'}
+const durOf=l=>l.durationMs!=null?l.durationMs:(l.days||0)*DAY;
+
 async function load(){
   try{
-    sessionStorage.setItem('tok',$('tok').value);
-    const {licenses}=await api({action:'list'});
-    const t=$('tbl'); t.innerHTML='<tr><th>Key</th><th>Note</th><th>Status</th><th>Expires</th><th>Devices</th><th>Last seen</th><th></th></tr>';
-    for(const l of licenses){
-      const exp=l.exp&&Date.now()>l.exp, st=l.revoked?'revoked':exp?'expired':l.exp?'active':l.days?'unused':'lifetime';
-      const tr=document.createElement('tr');
-      const expTxt=l.days?(l.exp?fmt(l.exp):l.days+'d on first use'):'never';
-      tr.innerHTML=`<td><code>${l.key}</code></td><td></td><td class="${l.revoked||exp?'bad':'ok'}">${st}</td><td>${expTxt}</td><td>${(l.devices||[]).length}/${l.maxDevices}</td><td>${fmt(l.lastSeen)}</td><td></td>`;
-      tr.children[1].textContent=l.note||'';
-      const td=tr.lastChild;
-      const btn=(txt,act,cls)=>{const b=document.createElement('button');b.textContent=txt;b.className='s '+(cls||'');
-        b.onclick=async()=>{if(act==='delete'&&!confirm('Delete '+l.key+'?'))return;await api({action:act,id:l.id});load()};td.append(b,' ')};
-      btn(l.revoked?'Unrevoke':'Revoke',l.revoked?'unrevoke':'revoke');
-      btn('Reset devices','reset_devices'); btn('Delete','delete','d');
-      t.append(tr);
-    }
-  }catch(e){alert('Error: '+e.message)}
+    DATA=await api({action:'list'});
+    $('login').hidden=true;$('app').hidden=false;sessionStorage.setItem('tok',$('tok').value);
+    render();$('upd').textContent='updated '+new Date().toLocaleTimeString()+' · auto-refresh 20s';
+  }catch(e){ if($('app').hidden){toast(e.message,1)} else toast('Refresh failed: '+e.message,1)}
 }
-$('login').onclick=load;
+function render(){
+  const s=DATA.stats;
+  const cards=[['Keys generated',s.generated],['Active',s.active],['Unused',s.unused],['Expired',s.expired],['Revoked',s.revoked],['Locked PCs (HWIDs)',s.devices],['Online now',s.online,'live']];
+  const g=$('stats');g.replaceChildren(...cards.map(([n,v,c])=>h('div',{class:'stat '+(c||'')},h('span',{},n),h('b',{},v))));
+
+  $('onl-sub').textContent=`(seen in last ${DATA.onlineWindowMs/MIN} min)`;
+  const ot=$('online');ot.replaceChildren();
+  if(!DATA.online.length)ot.append(h('tr',{},h('td',{class:'empty'},'Nobody is using the app right now')));
+  else{ot.append(h('tr',{},...['Key','Note','HWID','IP','Last ping'].map(x=>h('th',{},x))));
+    for(const o of DATA.online)ot.append(h('tr',{},h('td',{},h('code',{},o.key)),h('td',{},o.note||''),h('td',{},h('code',{title:o.hwid},o.hwid.slice(0,10)+'…')),h('td',{class:'m'},o.ip||''),h('td',{},ago(DATA.now-o.t))));}
+
+  const q=$('q').value.trim().toUpperCase(),f=$('flt').value;
+  const onlineIds=new Set(DATA.online.map(o=>o.id));
+  const t=$('tbl');t.replaceChildren(h('tr',{},...['Key','Note','Status','Duration','Expires / left','HWID lock','Last seen','Actions'].map(x=>h('th',{},x))));
+  let n=0;
+  for(const l of DATA.licenses){
+    if(f==='online'?!onlineIds.has(l.id):(f&&l.status!==f))continue;
+    if(q&&!(l.key.includes(q)||(l.note||'').toUpperCase().includes(q)||(l.devices||[]).some(d=>d.toUpperCase().includes(q))))continue;
+    n++;
+    const d=durOf(l);
+    const exp=!d?'never':l.exp?new Date(l.exp).toLocaleString()+' · '+left(l.exp-DATA.now):'starts on first use';
+    const chips=(l.devices||[]).map(hw=>{const on=l.seen&&l.seen[hw]&&DATA.now-l.seen[hw].t<=DATA.onlineWindowMs;
+      return h('span',{class:'chip',title:hw},h('i',{class:on?'on':''}),hw.slice(0,8),h('a',{title:'Remove this HWID',onclick:()=>act('remove_device',l,{hwid:hw},'Remove HWID '+hw.slice(0,8)+'…?')},'×'))});
+    const lockCell=h('td',{},h('span',{class:'badge '+(l.hwidLock===false?'nolock':'lock')},l.hwidLock===false?'unlocked':'locked · max '+(l.maxDevices||1)),h('div',{},chips.length?chips:h('span',{class:'m'},'no PC bound yet')));
+    const keyCell=h('td',{},h('code',{},l.key),' ',h('button',{class:'s',onclick:()=>{navigator.clipboard.writeText(l.key);toast('Copied '+l.key)}},'Copy'));
+    const acts=h('td',{},
+      h('button',{class:'s',onclick:()=>act(l.revoked?'unrevoke':'revoke',l)},l.revoked?'Unrevoke':'Revoke'),' ',
+      h('button',{class:'s',onclick:()=>act('toggle_lock',l)},l.hwidLock===false?'Lock on':'Lock off'),' ',
+      h('button',{class:'s',onclick:()=>act('reset_devices',l,{},'Clear all HWIDs for '+l.key+'?')},'Reset HWIDs'),' ',
+      h('button',{class:'s',onclick:extend.bind(null,l)},'+ Time'),' ',
+      h('button',{class:'s d',onclick:()=>act('delete',l,{},'Delete '+l.key+' permanently?')},'Delete'));
+    t.append(h('tr',{},keyCell,h('td',{},l.note||''),h('td',{},h('span',{class:'badge b-'+l.status},l.status+(onlineIds.has(l.id)?' · online':''))),h('td',{},dur(d)),h('td',{},exp),lockCell,h('td',{class:'m'},l.lastSeen?ago(DATA.now-l.lastSeen):'never'),acts));
+  }
+  if(!n)t.append(h('tr',{},h('td',{class:'empty',colspan:8},'No licenses')));
+}
+async function act(action,l,extra={},confirmMsg){
+  if(confirmMsg&&!confirm(confirmMsg))return;
+  try{await api({action,id:l.id,...extra});await load()}catch(e){toast(e.message,1)}}
+async function extend(l){
+  const v=prompt('Add time to '+l.key+'\nExamples: 30m, 12h, 7d','7d');if(!v)return;
+  const m=v.trim().match(/^(\d+)\s*([mhd])$/i);if(!m)return toast('Use a format like 30m, 12h or 7d',1);
+  const unit={m:'minutes',h:'hours',d:'days'}[m[2].toLowerCase()];
+  act('extend',l,{amount:m[1],unit});}
+
+$('unit').onchange=()=>{$('amount').disabled=$('unit').value==='lifetime'};
 $('create').onclick=async()=>{
   try{
-    const {keys}=await api({action:'create',count:$('count').value,days:$('days').value,maxDevices:$('dev').value,note:$('note').value});
-    $('out').hidden=false;$('out').textContent=keys.join('\n');load();
-  }catch(e){alert('Error: '+e.message)}
-};
-if($('tok').value)load();
+    const r=await api({action:'create',customKey:$('custom').value,count:$('count').value,amount:$('amount').value,unit:$('unit').value,
+      maxDevices:$('maxdev').value,hwidLock:$('hwlock').checked,hwid:$('hwid').value,note:$('note').value});
+    $('out').hidden=false;$('out').textContent=r.keys.join('\n');toast('Created '+r.keys.length+' key(s)');
+    $('custom').value='';$('hwid').value='';await load();
+  }catch(e){toast(e.message,1)}};
+$('go').onclick=load;$('tok').onkeydown=e=>{if(e.key==='Enter')load()};
+$('refresh').onclick=load;$('q').oninput=()=>DATA&&render();$('flt').onchange=()=>DATA&&render();
+$('logout').onclick=()=>{sessionStorage.removeItem('tok');location.reload()};
+$('tok').value=sessionStorage.getItem('tok')||'';if($('tok').value)load();
+timer=setInterval(()=>{if(!$('app').hidden)load()},20000);
 </script></body></html>
