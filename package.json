@@ -1,0 +1,9 @@
+{
+  "name": "ghostscript-license-server",
+  "version": "1.0.0",
+  "private": true,
+  "engines": { "node": "20.x" },
+  "scripts": {
+    "keypair": "node scripts/gen-keypair.js"
+  }
+}
